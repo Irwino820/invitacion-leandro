@@ -8,89 +8,38 @@ const prefersReducedMotion = window.matchMedia(
   '(prefers-reduced-motion: reduce)',
 ).matches;
 
-const hasIntro = document.documentElement.classList.contains('has-intro');
-
 if (!prefersReducedMotion) {
-  /* ---------- Entrada del hero ---------- */
-  const heroTl = gsap
-    .timeline({ paused: hasIntro, defaults: { ease: 'power3.out' } })
-    .from('.hero__eyebrow', { y: 18, opacity: 0, duration: 0.7 }, 0)
-    .from(
-      '.hat',
-      {
-        y: -70,
-        rotate: -18,
-        opacity: 0,
-        duration: 1.05,
-        ease: 'back.out(1.3)',
-      },
-      0.05,
-    )
-    .from(
-      '.badge',
-      {
-        scale: 0.45,
-        rotate: -25,
-        opacity: 0,
-        duration: 0.95,
-        ease: 'back.out(1.6)',
-      },
-      0.22,
-    )
-    .from(
-      '.badge__num',
-      { scale: 0, opacity: 0, duration: 0.6, ease: 'back.out(2.4)' },
-      0.62,
-    )
-    .from('.hero__name', { y: 46, opacity: 0, duration: 1.15 }, 0.36)
-    .from(
-      '.hero__age, .hero__lede',
-      { y: 22, opacity: 0, duration: 0.85, stagger: 0.1 },
-      0.66,
-    )
-    .from('.hero__facts', { y: 20, opacity: 0, duration: 0.8 }, 0.84)
-    .from('.hero .cta', { y: 18, opacity: 0, duration: 0.7 }, 0.96)
-    .from('.hero__scroll', { opacity: 0, duration: 0.8 }, 1.2)
-    .from(
-      '.cactus',
-      { y: 30, opacity: 0, duration: 1.1, stagger: 0.1 },
-      0.9,
-    );
+  /* ---------- El nombre: letra por letra, con máscara ---------- */
+  const name = document.querySelector('.hero__name');
+  name.setAttribute('aria-label', name.textContent.trim());
+  name.innerHTML = [...name.textContent.trim()]
+    .map((ch) => `<span class="ch" aria-hidden="true"><span>${ch}</span></span>`)
+    .join('');
 
-  /* ---------- Intro: puertas de cantina ---------- */
-  const saloon = document.getElementById('saloon');
-  const openButton = document.getElementById('saloon-open');
+  /* ---------- Amanecer: el sol sube, el paisaje se levanta ---------- */
+  gsap
+    .timeline({ defaults: { ease: 'power3.out' } })
+    .from('.sun', { yPercent: 75, duration: 2.6, ease: 'power2.out' }, 0)
+    .from('.hero__glow', { opacity: 0, duration: 2.4, ease: 'sine.out' }, 0)
+    .from('.land__far', { yPercent: 14, opacity: 0, duration: 1.8 }, 0.15)
+    .from('.land__mid', { yPercent: 20, opacity: 0, duration: 1.7 }, 0.3)
+    .from('.land__near', { yPercent: 30, opacity: 0, duration: 1.6 }, 0.45)
+    .from('.cactus', { y: 40, opacity: 0, duration: 1.3, stagger: 0.12 }, 0.9)
+    .from('.hero__eyebrow', { y: 14, opacity: 0, duration: 0.9 }, 0.7)
+    .from('.hat', { y: -60, rotate: -14, opacity: 0, duration: 1.2, ease: 'back.out(1.2)' }, 0.85)
+    .from('.badge', { scale: 0.4, rotate: -30, opacity: 0, duration: 1.2, ease: 'back.out(1.5)' }, 1.0)
+    .from('.badge__num', { scale: 0, opacity: 0, duration: 0.7, ease: 'back.out(2.6)' }, 1.5)
+    .from('.hero__name .ch > span', { yPercent: 118, rotate: 5, duration: 1.15, ease: 'expo.out', stagger: 0.06 }, 1.15)
+    .from('.hero__age, .hero__lede', { y: 20, opacity: 0, duration: 0.9, stagger: 0.12 }, 1.75)
+    .from('.hero__facts, .hero .cta', { y: 18, opacity: 0, duration: 0.8, stagger: 0.12 }, 2.0)
+    .from('.hero__scroll', { opacity: 0, duration: 0.8 }, 2.4);
 
-  if (saloon && openButton && hasIntro) {
-    openButton.focus({ preventScroll: true });
-    openButton.addEventListener(
-      'click',
-      () => {
-        gsap
-          .timeline({
-            onComplete: () => {
-              saloon.remove();
-              document.documentElement.classList.remove('has-intro', 'is-locked');
-              ScrollTrigger.refresh();
-            },
-          })
-          .to('.saloon__card', { opacity: 0, scale: 0.92, duration: 0.35 })
-          .to(
-            '.saloon__door--l',
-            { rotationY: 82, duration: 1.1, ease: 'power3.inOut' },
-            0.1,
-          )
-          .to(
-            '.saloon__door--r',
-            { rotationY: -82, duration: 1.1, ease: 'power3.inOut' },
-            0.1,
-          )
-          .add(() => heroTl.play(), 0.5)
-          .to('.saloon__door', { autoAlpha: 0, duration: 0.3 }, '>-0.25');
-      },
-      { once: true },
-    );
-  }
+  /* ---------- Al hacer scroll: el sol se pone y las capas se separan ---------- */
+  const heroScrub = { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true };
+  gsap.to('.sun', { yPercent: 55, ease: 'none', scrollTrigger: heroScrub });
+  gsap.to('.land__far', { yPercent: 8, ease: 'none', scrollTrigger: heroScrub });
+  gsap.to('.land__mid', { yPercent: 16, ease: 'none', scrollTrigger: heroScrub });
+  gsap.to('.hero__inner', { y: -40, opacity: 0.2, ease: 'none', scrollTrigger: heroScrub });
 
   /* Los rayos del distintivo giran muy despacio. */
   gsap.to('.badge__rays', {

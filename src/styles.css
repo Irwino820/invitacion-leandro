@@ -943,80 +943,6 @@ a {
   }
 }
 
-/* ---------- Intro: puertas de cantina ---------- */
-
-.saloon {
-  display: none;
-}
-
-.has-intro .saloon {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
-  place-items: center;
-  perspective: 1400px;
-}
-
-html.is-locked {
-  overflow: hidden;
-}
-
-.saloon__door {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50.2%;
-  background:
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 46px),
-    var(--denim);
-  box-shadow:
-    inset 0 0 0 10px var(--denim),
-    inset 0 0 0 13px var(--mustard);
-  backface-visibility: hidden;
-  will-change: transform;
-}
-
-.saloon__door--l {
-  left: 0;
-  transform-origin: left center;
-}
-
-.saloon__door--r {
-  right: 0;
-  transform-origin: right center;
-}
-
-.saloon__card {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.1rem;
-  padding: 2rem 1.5rem;
-  color: var(--paper-soft);
-  text-align: center;
-}
-
-.saloon__eyebrow {
-  color: var(--mustard);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-}
-
-.saloon__name {
-  font-family: var(--display);
-  font-size: clamp(2.4rem, 8vw, 4.6rem);
-  font-style: italic;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  text-wrap: balance;
-}
-
 /* ---------- Botón fantasma ---------- */
 
 .cta--ghost {
@@ -1187,4 +1113,66 @@ html.is-locked {
   .countdown__grid {
     max-width: none;
   }
+}
+
+/* ---------- Amanecer en el desierto ---------- */
+
+.sun {
+  position: absolute;
+  bottom: 6vh;
+  left: 80%;
+  z-index: 0;
+  width: clamp(180px, 22vw, 300px);
+  aspect-ratio: 1;
+  margin-left: calc(clamp(180px, 22vw, 300px) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle, #f1bd55 0 54%, rgba(217, 161, 59, 0.34) 55% 66%, rgba(217, 161, 59, 0) 74%);
+  will-change: transform;
+}
+
+@media (max-width: 900px) {
+  .sun {
+    left: 50%;
+    bottom: -3vh;
+    width: 58vw;
+    margin-left: -29vw;
+    opacity: 0.7;
+  }
+}
+
+.land {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  width: 100%;
+  height: clamp(190px, 34vh, 330px);
+  pointer-events: none;
+}
+
+.land path {
+  will-change: transform;
+}
+
+.land__far {
+  fill: color-mix(in srgb, var(--denim) 24%, var(--paper));
+}
+
+.land__mid {
+  fill: color-mix(in srgb, var(--rust) 36%, var(--paper));
+}
+
+.land__near {
+  fill: color-mix(in srgb, var(--sage) 62%, var(--paper));
+}
+
+.hero__name .ch {
+  display: inline-block;
+  margin: -0.1em -0.05em;
+  padding: 0.1em 0.05em;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.hero__name .ch > span {
+  display: inline-block;
 }

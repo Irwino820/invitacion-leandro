@@ -6,12 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f4e9d5" />
     <meta name="robots" content="noindex, nofollow" />
-<script>
-  /* Intro de puertas: solo si el visitante NO pidió menos movimiento */
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.documentElement.classList.add('has-intro', 'is-locked');
-  }
-</script>
     <meta name="author" content="Familia de Leandro" />
 
     <title>Leandro · Cumple 2 · Fiesta vaquera</title>
@@ -63,22 +57,16 @@
   <body>
     <div class="grain" aria-hidden="true"></div>
 
-<div class="saloon" id="saloon" role="dialog" aria-label="Bienvenida">
-  <div class="saloon__door saloon__door--l" aria-hidden="true"></div>
-  <div class="saloon__door saloon__door--r" aria-hidden="true"></div>
-  <div class="saloon__card">
-    <p class="saloon__eyebrow">Estás invitado</p>
-    <p class="saloon__name">Leandro cumple 2</p>
-    <button class="cta cta--rust" id="saloon-open" type="button">
-      <span>Entrar al rancho</span>
-      <span class="cta__icon" aria-hidden="true">→</span>
-    </button>
-  </div>
-</div>
 
     <header class="hero" id="inicio">
       <div class="hero__glow" aria-hidden="true"></div>
-
+      <div class="sun" aria-hidden="true"></div>
+      <svg class="land" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <path class="land__far" d="M0 420V250H90L110 215H230L250 250H380L400 190H520L540 250H700L720 230H860L880 250H1010L1030 200H1150L1170 250H1300L1320 225H1440V420Z" />
+        <path class="land__mid" d="M0 420V330H140L160 290H300L320 330H520L545 270H640L665 330H900L925 300H1060L1085 330H1260L1280 285H1380L1400 330H1440V420Z" />
+        <path class="land__near" d="M0 420v-48c240-20 480 12 720-2s480-20 720 2v48Z" />
+      </svg>
+      
       <svg class="cactus cactus--left" viewBox="0 0 90 170" aria-hidden="true">
         <g
           fill="none"
