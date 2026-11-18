@@ -8,10 +8,12 @@ const prefersReducedMotion = window.matchMedia(
   '(prefers-reduced-motion: reduce)',
 ).matches;
 
+const hasIntro = document.documentElement.classList.contains('has-intro');
+
 if (!prefersReducedMotion) {
   /* ---------- Entrada del hero ---------- */
-  gsap
-    .timeline({ defaults: { ease: 'power3.out' } })
+  const heroTl = gsap
+    .timeline({ paused: hasIntro, defaults: { ease: 'power3.out' } })
     .from('.hero__eyebrow', { y: 18, opacity: 0, duration: 0.7 }, 0)
     .from(
       '.hat',
@@ -54,6 +56,41 @@ if (!prefersReducedMotion) {
       { y: 30, opacity: 0, duration: 1.1, stagger: 0.1 },
       0.9,
     );
+
+  /* ---------- Intro: puertas de cantina ---------- */
+  const saloon = document.getElementById('saloon');
+  const openButton = document.getElementById('saloon-open');
+
+  if (saloon && openButton && hasIntro) {
+    openButton.focus({ preventScroll: true });
+    openButton.addEventListener(
+      'click',
+      () => {
+        gsap
+          .timeline({
+            onComplete: () => {
+              saloon.remove();
+              document.documentElement.classList.remove('has-intro', 'is-locked');
+              ScrollTrigger.refresh();
+            },
+          })
+          .to('.saloon__card', { opacity: 0, scale: 0.92, duration: 0.35 })
+          .to(
+            '.saloon__door--l',
+            { rotationY: 82, duration: 1.1, ease: 'power3.inOut' },
+            0.1,
+          )
+          .to(
+            '.saloon__door--r',
+            { rotationY: -82, duration: 1.1, ease: 'power3.inOut' },
+            0.1,
+          )
+          .add(() => heroTl.play(), 0.5)
+          .to('.saloon__door', { autoAlpha: 0, duration: 0.3 }, '>-0.25');
+      },
+      { once: true },
+    );
+  }
 
   /* Los rayos del distintivo giran muy despacio. */
   gsap.to('.badge__rays', {
@@ -140,4 +177,33 @@ if (!prefersReducedMotion) {
 
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
   window.addEventListener('load', () => ScrollTrigger.refresh());
+}
+
+/* ---------- Cuenta regresiva ---------- */
+const countdown = document.querySelector('[data-countdown]');
+
+if (countdown) {
+  const target = new Date(countdown.dataset.countdown).getTime();
+  const cells = Object.fromEntries(
+    [...countdown.querySelectorAll('[data-unit]')].map((el) => [el.dataset.unit, el]),
+  );
+  const title = countdown.querySelector('.countdown__title');
+  const pad = (n) => String(n).padStart(2, '0');
+
+  const tick = () => {
+    const diff = Math.max(0, target - Date.now());
+    const s = Math.floor(diff / 1000);
+    cells.d.textContent = pad(Math.floor(s / 86400));
+    cells.h.textContent = pad(Math.floor((s % 86400) / 3600));
+    cells.m.textContent = pad(Math.floor((s % 3600) / 60));
+    cells.s.textContent = pad(s % 60);
+
+    if (diff === 0) {
+      title.textContent = '¡Ya empezó la fiesta!';
+      clearInterval(timer);
+    }
+  };
+
+  const timer = setInterval(tick, 1000);
+  tick();
 }

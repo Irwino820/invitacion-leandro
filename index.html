@@ -5,7 +5,13 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f4e9d5" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="noindex, nofollow" />
+<script>
+  /* Intro de puertas: solo si el visitante NO pidió menos movimiento */
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.classList.add('has-intro', 'is-locked');
+  }
+</script>
     <meta name="author" content="Familia de Leandro" />
 
     <title>Leandro · Cumple 2 · Fiesta vaquera</title>
@@ -56,6 +62,19 @@
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
+
+<div class="saloon" id="saloon" role="dialog" aria-label="Bienvenida">
+  <div class="saloon__door saloon__door--l" aria-hidden="true"></div>
+  <div class="saloon__door saloon__door--r" aria-hidden="true"></div>
+  <div class="saloon__card">
+    <p class="saloon__eyebrow">Estás invitado</p>
+    <p class="saloon__name">Leandro cumple 2</p>
+    <button class="cta cta--rust" id="saloon-open" type="button">
+      <span>Entrar al rancho</span>
+      <span class="cta__icon" aria-hidden="true">→</span>
+    </button>
+  </div>
+</div>
 
     <header class="hero" id="inicio">
       <div class="hero__glow" aria-hidden="true"></div>
@@ -237,6 +256,49 @@
               <circle cx="76" cy="98" r="2.4" fill="currentColor" />
             </svg>
           </div>
+
+          <div class="countdown" data-reveal data-countdown="2026-12-25T15:00:00-06:00">
+  <p class="countdown__title">Faltan para el rodeo</p>
+  <div class="countdown__grid" role="timer" aria-live="off">
+    <div><span data-unit="d">--</span><small>días</small></div>
+    <div><span data-unit="h">--</span><small>horas</small></div>
+    <div><span data-unit="m">--</span><small>min</small></div>
+    <div><span data-unit="s">--</span><small>seg</small></div>
+  </div>
+  <div class="countdown__actions">
+    <a class="cta" href="/cumple-leandro.ics" download>
+      <span>Agregar al calendario</span>
+      <span class="cta__icon" aria-hidden="true">+</span>
+    </a>
+    <a
+      class="cta cta--ghost"
+      href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Cumple+2+de+Leandro&amp;dates=20261225T210000Z/20261226T000000Z&amp;details=Fiesta+vaquera&amp;location=Jos%C3%A9+Garc%C3%ADa+210%2C+La+Estaci%C3%B3n+Rinc%C3%B3n"
+      target="_blank"
+      rel="noreferrer"
+    >
+      <span>Google Calendar</span>
+    </a>
+  </div>
+</div>
+
+<article class="wanted" data-reveal>
+  <p class="wanted__top">Se busca</p>
+  <figure class="wanted__photo">
+    <svg class="wanted__ghost" viewBox="0 0 240 140" aria-hidden="true">
+      <path d="M120 14c-20 0-32 14-34 34l-2 20h72l-2-20c-2-20-14-34-34-34Z" />
+      <path d="M42 64C26 68 14 74 14 80c0 9 30 14 106 14s106-5 106-14c0-6-12-12-28-16-20 6-50 8-78 8s-58-2-78-8Z" />
+    </svg>
+    <!-- Foto cuadrada en public/leandro.jpg. Si no existe, se muestra el sombrero -->
+    <img src="/leandro.jpg" alt="Leandro" width="400" height="400" loading="lazy" onerror="this.remove()" />
+  </figure>
+  <h3 class="wanted__name">Leandro</h3>
+  <p class="wanted__line">Vaquero de <em>2 años</em></p>
+  <dl class="wanted__list">
+    <div><dt>Por</dt><dd>Robarse el corazón de todos</dd></div>
+    <div><dt>Recompensa</dt><dd>Abrazos, risas y mucho pastel</dd></div>
+  </dl>
+</article>
+
         </div>
       </section>
 
@@ -275,6 +337,17 @@
               <span>Cómo llegar</span>
               <span class="cta__icon" aria-hidden="true">↗</span>
             </a>
+
+            <a
+  class="cta cta--ghost"
+  href="https://waze.com/ul?q=Jos%C3%A9%20Garc%C3%ADa%20210%2C%20La%20Estaci%C3%B3n%20Rinc%C3%B3n&amp;navigate=yes"
+  target="_blank"
+  rel="noreferrer"
+  data-reveal
+>
+  <span>Abrir en Waze</span>
+  <span class="cta__icon" aria-hidden="true">↗</span>
+</a>
           </div>
 
           <figure class="sign">

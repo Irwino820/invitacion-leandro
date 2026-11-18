@@ -942,3 +942,249 @@ a {
     transition: none;
   }
 }
+
+/* ---------- Intro: puertas de cantina ---------- */
+
+.saloon {
+  display: none;
+}
+
+.has-intro .saloon {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  perspective: 1400px;
+}
+
+html.is-locked {
+  overflow: hidden;
+}
+
+.saloon__door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.2%;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 46px),
+    var(--denim);
+  box-shadow:
+    inset 0 0 0 10px var(--denim),
+    inset 0 0 0 13px var(--mustard);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.saloon__door--l {
+  left: 0;
+  transform-origin: left center;
+}
+
+.saloon__door--r {
+  right: 0;
+  transform-origin: right center;
+}
+
+.saloon__card {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 2rem 1.5rem;
+  color: var(--paper-soft);
+  text-align: center;
+}
+
+.saloon__eyebrow {
+  color: var(--mustard);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+.saloon__name {
+  font-family: var(--display);
+  font-size: clamp(2.4rem, 8vw, 4.6rem);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+/* ---------- Botón fantasma ---------- */
+
+.cta--ghost {
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+}
+
+.cta--ghost:hover {
+  background: var(--ink);
+  color: var(--paper-soft);
+}
+
+/* ---------- Cuenta regresiva ---------- */
+
+.countdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  max-width: 62rem;
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+.countdown__title {
+  color: var(--rust);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+.countdown__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.6rem, 2vw, 1.2rem);
+  max-width: 36rem;
+}
+
+.countdown__grid > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1.1rem 0.5rem;
+  border: 1px solid var(--ink);
+  background: var(--paper-soft);
+  box-shadow: 6px 6px 0 rgba(176, 74, 42, 0.14);
+}
+
+.countdown__grid span {
+  font-family: var(--display);
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.countdown__grid small {
+  color: var(--ink-soft);
+  font-size: 0.54rem;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.countdown__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.countdown__actions .cta {
+  margin-top: 0;
+}
+
+/* ---------- Cartel "Se busca" ---------- */
+
+.wanted {
+  width: min(100%, 25rem);
+  margin: clamp(3.5rem, 7vw, 5.5rem) auto 0;
+  padding: 1.8rem 1.6rem 2rem;
+  border: 2px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: -8px;
+  background: var(--paper-deep);
+  box-shadow: 14px 14px 0 rgba(176, 74, 42, 0.14);
+  text-align: center;
+  transform: rotate(-1.2deg);
+}
+
+.wanted__top {
+  font-family: var(--display);
+  font-size: clamp(2.4rem, 7vw, 3.4rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.wanted__photo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 78%;
+  aspect-ratio: 1;
+  margin: 1.2rem auto;
+  border: 2px solid var(--ink);
+  background: var(--paper-soft);
+  overflow: hidden;
+}
+
+.wanted__ghost {
+  width: 60%;
+  fill: var(--rust);
+  opacity: 0.35;
+}
+
+.wanted__photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.3) contrast(1.05);
+}
+
+.wanted__name {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(2rem, 5vw, 2.6rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.wanted__line {
+  margin-top: 0.4rem;
+  color: var(--rust);
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.wanted__list {
+  display: grid;
+  gap: 0.9rem;
+  margin: 1.2rem 0 0;
+}
+
+.wanted__list dt {
+  color: var(--mustard-deep);
+  font-size: 0.54rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.wanted__list dd {
+  margin: 0.25rem 0 0;
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+@media (max-width: 640px) {
+  .countdown__grid {
+    max-width: none;
+  }
+}
