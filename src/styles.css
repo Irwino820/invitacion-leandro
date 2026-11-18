@@ -360,8 +360,8 @@ a {
 .marquee {
   position: relative;
   z-index: 3;
-  margin-block: -1.2rem -1.2rem;
-  padding: 1rem 0;
+  margin-block: -1.8rem -1.6rem;
+  padding: 1.2rem 0;
   background: var(--rust);
   color: var(--paper-soft);
   overflow: hidden;
@@ -372,12 +372,11 @@ a {
 .marquee__track {
   display: flex;
   align-items: center;
-  gap: 3.6rem;
+  gap: 2.8rem;
   width: max-content;
-  padding-left: 3rem;
-  padding-right: 3rem;
+  padding-left: 2.6rem;
   font-family: var(--display);
-  font-size: clamp(0.82rem, 1.4vw, 1.02rem);
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
   font-weight: 600;
   letter-spacing: 0.22em;
   line-height: 1;
