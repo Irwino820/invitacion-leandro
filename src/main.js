@@ -36,7 +36,7 @@ if (!prefersReducedMotion) {
 
   /* ---------- Al hacer scroll: el sol se pone y las capas se separan ---------- */
   const heroScrub = { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true };
-  gsap.to('.sun', { yPercent: 55, ease: 'none', scrollTrigger: heroScrub });
+  gsap.to('.sun', { yPercent: -70, opacity: 0, ease: 'none', scrollTrigger: heroScrub });
   gsap.to('.land__far', { yPercent: 8, ease: 'none', scrollTrigger: heroScrub });
   gsap.to('.land__mid', { yPercent: 16, ease: 'none', scrollTrigger: heroScrub });
   gsap.to('.hero__inner', { y: -40, opacity: 0.2, ease: 'none', scrollTrigger: heroScrub });
