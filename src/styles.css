@@ -1176,3 +1176,183 @@ a {
 .hero__name .ch > span {
   display: inline-block;
 }
+
+/* ============================================================
+   Más vida + enfoque en celular
+   ============================================================ */
+
+.spark {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 1;
+  color: var(--mustard);
+  font-size: 0.95rem;
+  font-style: normal;
+  opacity: 0.1;
+  pointer-events: none;
+  animation: twinkle 3.4s ease-in-out var(--d) infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(0.6) rotate(0deg); }
+  50% { opacity: 0.9; transform: scale(1.15) rotate(25deg); }
+}
+
+.badge {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.confetti {
+  position: fixed;
+  z-index: 70;
+  margin: -0.55em 0 0 -0.55em;
+  font-size: 1.2rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Barra de acciones rápidas (solo celular/tableta) */
+.dock {
+  position: fixed;
+  left: 50%;
+  bottom: calc(0.8rem + env(safe-area-inset-bottom, 0px));
+  z-index: 45;
+  display: none;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: rgba(43, 42, 37, 0.93);
+  box-shadow: 0 16px 34px -14px rgba(43, 42, 37, 0.65);
+  backdrop-filter: blur(10px);
+  transform: translate(-50%, 180%);
+  transition: transform 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.08);
+}
+
+.dock.is-on {
+  transform: translate(-50%, 0);
+}
+
+.dock a {
+  padding: 1rem 1.25rem;
+  border-radius: 999px;
+  color: var(--paper-soft);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.dock a:first-child {
+  background: var(--rust);
+}
+
+/* Noche en el pie de página */
+.footer {
+  position: relative;
+  overflow: hidden;
+}
+
+.footer__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.footer__stars {
+  position: absolute;
+  inset: 0;
+}
+
+.footer__stars i {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: var(--paper-soft);
+  opacity: 0.2;
+  animation: twinkle-soft 3s ease-in-out var(--d) infinite;
+}
+
+@keyframes twinkle-soft {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.95; }
+}
+
+.footer__moon {
+  --m: clamp(46px, 11vw, 76px);
+  position: absolute;
+  top: clamp(1.6rem, 5vw, 3.4rem);
+  right: clamp(1.5rem, 8vw, 6rem);
+  width: var(--m);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: inset calc(var(--m) * -0.24) calc(var(--m) * -0.07) 0 0 var(--mustard);
+}
+
+@media (max-width: 900px) {
+  .dock {
+    display: flex;
+  }
+
+  .footer {
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Celular: textos legibles y botones cómodos para el pulgar */
+@media (max-width: 640px) {
+  .hero__eyebrow { font-size: 0.64rem; }
+
+  .fact__label,
+  .eyebrow,
+  .ticket__month,
+  .ticket__year,
+  .ticket__weekday,
+  .ticket__address,
+  .countdown__title,
+  .countdown__grid small,
+  .wanted__list dt,
+  .place__town,
+  .sign__eyebrow,
+  .sign__year,
+  .sign__caption,
+  .footer__eyebrow,
+  .footer__meta,
+  .footer__top,
+  .hero__scroll {
+    font-size: 0.7rem;
+  }
+
+  .fact__value { font-size: 0.92rem; }
+
+  .cta {
+    padding: 1.15rem 1.7rem;
+    font-size: 0.7rem;
+  }
+
+  .countdown__actions {
+    flex-direction: column;
+  }
+
+  .countdown__actions .cta {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .place .cta {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .wanted { margin-inline: auto; width: min(100%, 22.5rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spark { animation: none; opacity: 0.5; }
+  .footer__stars i { animation: none; opacity: 0.6; }
+  .dock { transition: none; }
+}

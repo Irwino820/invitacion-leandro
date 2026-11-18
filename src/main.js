@@ -117,11 +117,76 @@ if (!prefersReducedMotion) {
     opacity: 0,
     duration: 1.15,
     ease: 'power3.out',
+    onComplete: () =>
+      gsap.to('.sign', { rotate: -0.2, duration: 3.4, yoyo: true, repeat: -1, ease: 'sine.inOut' }),
     scrollTrigger: {
       trigger: '.sign',
       start: 'top 86%',
       once: true,
     },
+  });
+
+  /* ---------- Vida: la estrella respira y estalla al tocarla ---------- */
+  gsap.to('.badge__star', { scale: 1.045, duration: 2.2, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+
+  const badge = document.querySelector('.badge');
+  const palette = ['#d9a13b', '#b04a2a', '#6d7c55', '#2f4757'];
+  const burst = () => {
+    const r = badge.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    for (let i = 0; i < 16; i += 1) {
+      const star = document.createElement('span');
+      star.className = 'confetti';
+      star.textContent = '✦';
+      star.style.cssText = `left:${cx}px;top:${cy}px;color:${palette[i % 4]}`;
+      document.body.append(star);
+      const angle = (Math.PI * 2 * i) / 16 + Math.random() * 0.4;
+      const dist = 80 + Math.random() * 110;
+      gsap.fromTo(
+        star,
+        { scale: 0.3, opacity: 1 },
+        {
+          x: Math.cos(angle) * dist,
+          y: Math.sin(angle) * dist + 40,
+          rotate: Math.random() * 400 - 200,
+          scale: 0.9 + Math.random() * 1.1,
+          opacity: 0,
+          duration: 1.1 + Math.random() * 0.6,
+          ease: 'power2.out',
+          onComplete: () => star.remove(),
+        },
+      );
+    }
+    gsap.fromTo('.badge__num', { scale: 0.7 }, { scale: 1, duration: 0.9, ease: 'elastic.out(1, 0.4)' });
+  };
+  badge.setAttribute('role', 'button');
+  badge.setAttribute('tabindex', '0');
+  badge.setAttribute('aria-label', 'Lanzar estrellas');
+  badge.addEventListener('click', burst);
+  badge.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      burst();
+    }
+  });
+
+  /* ---------- El cartel cuelga de un clavo y se columpia ---------- */
+  gsap.from('.wanted', {
+    rotate: 8,
+    transformOrigin: '50% 0%',
+    duration: 1.8,
+    ease: 'elastic.out(1, 0.5)',
+    scrollTrigger: { trigger: '.wanted', start: 'top 85%', once: true },
+  });
+
+  /* ---------- Sale la luna ---------- */
+  gsap.from('.footer__moon', {
+    y: 70,
+    opacity: 0,
+    duration: 1.8,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: '.footer', start: 'top 85%', once: true },
   });
 
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
@@ -146,6 +211,9 @@ if (countdown) {
     cells.h.textContent = pad(Math.floor((s % 86400) / 3600));
     cells.m.textContent = pad(Math.floor((s % 3600) / 60));
     cells.s.textContent = pad(s % 60);
+    if (!prefersReducedMotion) {
+      gsap.fromTo(cells.s, { yPercent: -35, opacity: 0.25 }, { yPercent: 0, opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: true });
+    }
 
     if (diff === 0) {
       title.textContent = '¡Ya empezó la fiesta!';
@@ -155,4 +223,34 @@ if (countdown) {
 
   const timer = setInterval(tick, 1000);
   tick();
+}
+
+/* ---------- Estrellas del cielo nocturno ---------- */
+const sky = document.querySelector('.footer__stars');
+if (sky) {
+  for (let i = 0; i < 32; i += 1) {
+    const dot = document.createElement('i');
+    dot.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;--s:${(1 + Math.random() * 2).toFixed(1)}px;--d:${(Math.random() * 4).toFixed(1)}s`;
+    sky.append(dot);
+  }
+}
+
+/* ---------- Barra de acciones: aparece al salir del hero ---------- */
+const dock = document.querySelector('.dock');
+if (dock && 'IntersectionObserver' in window) {
+  const hidden = new Set(['.hero']);
+  const sync = () => dock.classList.toggle('is-on', hidden.size === 0);
+  ['.hero', '.footer'].forEach((selector) => {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) hidden.add(selector);
+        else hidden.delete(selector);
+        sync();
+      },
+      { threshold: 0.15 },
+    ).observe(el);
+  });
+  sync();
 }
