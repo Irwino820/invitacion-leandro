@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#f4e9d5" />
+  <rect x="4" y="4" width="56" height="56" fill="none" stroke="#b04a2a" stroke-width="1" />
+  <g transform="translate(32 32) scale(0.86) translate(-32 -32)">
+    <polygon
+      points="32,5.12 39.52,21.63 60,22.91 44.16,36 49.31,55.81 32,44.8 14.69,55.81 19.84,36 4,22.91 24.48,21.63"
+      fill="#d9a13b"
+      stroke="#faf3e5"
+      stroke-width="1.8"
+      stroke-linejoin="round"
+    />
+  </g>
+  <text
+    x="32"
+    y="41"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="20"
+    font-weight="700"
+    fill="#2b2a25"
+  >2</text>
+</svg>
