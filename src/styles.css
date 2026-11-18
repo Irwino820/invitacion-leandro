@@ -372,9 +372,10 @@ a {
 .marquee__track {
   display: flex;
   align-items: center;
-  gap: 2.2rem;
+  gap: 3.6rem;
   width: max-content;
-  padding-left: 2.2rem;
+  padding-left: 3rem;
+  padding-right: 3rem;
   font-family: var(--display);
   font-size: clamp(0.82rem, 1.4vw, 1.02rem);
   font-weight: 600;
