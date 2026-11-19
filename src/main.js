@@ -8,79 +8,293 @@ const prefersReducedMotion = window.matchMedia(
   '(prefers-reduced-motion: reduce)',
 ).matches;
 
-if (!prefersReducedMotion) {
-  /* ---------- El nombre: letra por letra, con máscara ---------- */
-  const name = document.querySelector('.hero__name');
-  name.setAttribute('aria-label', name.textContent.trim());
-  name.innerHTML = [...name.textContent.trim()]
-    .map((ch) => `<span class="ch" aria-hidden="true"><span>${ch}</span></span>`)
-    .join('');
+const isFinePointer = window.matchMedia('(pointer: fine)').matches;
 
-  /* ---------- Amanecer: el sol sube, el paisaje se levanta ---------- */
+/* ---------- Toast accesible en capa superior (Popover API + fallback) ---------- */
+const toast = document.getElementById('app-toast');
+const toastMessage = toast?.querySelector('[data-toast-message]');
+const supportsPopover =
+  typeof HTMLElement !== 'undefined' && 'popover' in HTMLElement.prototype;
+let toastTimer = 0;
+
+const hideToast = () => {
+  if (!toast) return;
+  if (supportsPopover && toast.matches(':popover-open')) {
+    toast.hidePopover();
+  } else {
+    toast.classList.remove('is-open');
+  }
+};
+
+const showToast = (message) => {
+  if (!toast || !toastMessage) return;
+  window.clearTimeout(toastTimer);
+  toastMessage.textContent = message;
+
+  if (supportsPopover) {
+    if (!toast.matches(':popover-open')) {
+      toast.showPopover();
+    }
+  } else {
+    toast.classList.add('is-open');
+  }
+
+  toastTimer = window.setTimeout(hideToast, 3400);
+};
+
+toast?.querySelector('.toast__close')?.addEventListener('click', () => {
+  window.clearTimeout(toastTimer);
+  if (!supportsPopover) hideToast();
+});
+
+/* ---------- Barra de progreso de lectura ---------- */
+let scrollRaf = 0;
+const updateScrollProgress = () => {
+  scrollRaf = 0;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+  document.documentElement.style.setProperty('--scroll-progress', ratio.toFixed(4));
+};
+
+window.addEventListener(
+  'scroll',
+  () => {
+    if (!scrollRaf) {
+      scrollRaf = window.requestAnimationFrame(updateScrollProgress);
+    }
+  },
+  { passive: true },
+);
+updateScrollProgress();
+
+/* ---------- Carga progresiva de foto opcional (public/leandro.jpg) ---------- */
+const photoFrame = document.querySelector('[data-photo-frame]');
+if (photoFrame) {
+  const probe = new Image();
+  probe.decoding = 'async';
+  probe.addEventListener('load', () => {
+    const img = document.createElement('img');
+    img.src = '/leandro.jpg';
+    img.alt = 'Retrato de Leandro';
+    img.width = 400;
+    img.height = 400;
+    img.loading = 'lazy';
+    photoFrame.append(img);
+  });
+  probe.src = '/leandro.jpg';
+}
+
+/* ---------- Explosión festiva en la estrella del Sheriff ---------- */
+const badge = document.querySelector('.badge');
+const palette = ['#d9a13b', '#a24123', '#62734b', '#243846'];
+
+const burstStars = () => {
+  if (!badge) return;
+  if (prefersReducedMotion) {
+    showToast('¡Leandro cumple 2 años el 25 de diciembre!');
+    return;
+  }
+
+  const r = badge.getBoundingClientRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top + r.height / 2;
+  const symbols = ['✦', '★', '✦', '✧'];
+
+  for (let i = 0; i < 18; i += 1) {
+    const star = document.createElement('span');
+    star.className = 'confetti';
+    star.textContent = symbols[i % symbols.length];
+    star.style.left = `${cx}px`;
+    star.style.top = `${cy}px`;
+    star.style.color = palette[i % palette.length];
+    document.body.append(star);
+
+    const angle = (Math.PI * 2 * i) / 18 + Math.random() * 0.35;
+    const dist = 85 + Math.random() * 120;
+
+    gsap.fromTo(
+      star,
+      { scale: 0.35, opacity: 1 },
+      {
+        x: Math.cos(angle) * dist,
+        y: Math.sin(angle) * dist + 44,
+        rotate: Math.random() * 420 - 210,
+        scale: 0.9 + Math.random() * 1.05,
+        opacity: 0,
+        duration: 1.05 + Math.random() * 0.55,
+        ease: 'power2.out',
+        onComplete: () => star.remove(),
+      },
+    );
+  }
+
+  gsap.fromTo(
+    '.badge__num',
+    { scale: 0.72 },
+    { scale: 1, duration: 0.85, ease: 'elastic.out(1, 0.42)' },
+  );
+};
+
+badge?.addEventListener('click', burstStars);
+
+/* ---------- Brillo sutil del boleto al mover el cursor ---------- */
+const ticket = document.querySelector('.ticket');
+if (ticket && isFinePointer && !prefersReducedMotion) {
+  ticket.addEventListener('pointermove', (event) => {
+    const rect = ticket.getBoundingClientRect();
+    ticket.style.setProperty('--mx', `${event.clientX - rect.left}px`);
+    ticket.style.setProperty('--my', `${event.clientY - rect.top}px`);
+  });
+}
+
+/* ---------- Copiar dirección ---------- */
+const copyText = async (text) => {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.append(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  textarea.remove();
+};
+
+document.querySelectorAll('[data-copy]').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    const text = btn.getAttribute('data-copy');
+    if (!text) return;
+    try {
+      await copyText(text);
+      showToast('Dirección copiada al portapapeles');
+    } catch {
+      showToast('José García #210, La Estación Rincón');
+    }
+  });
+});
+
+/* ---------- Compartir invitación (Web Share API + fallback) ---------- */
+const sharePayload = {
+  title: 'Leandro · Cumple 2 · Fiesta vaquera',
+  text: '¡Acompáñanos a celebrar los 2 años de Leandro! Viernes 25 de diciembre de 2026 a las 3:00 p. m. en José García #210, La Estación Rincón.',
+  url: window.location.href,
+};
+
+document.querySelectorAll('[data-share]').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share(sharePayload);
+        return;
+      } catch (err) {
+        if (err?.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await copyText(`${sharePayload.text}\n${sharePayload.url}`);
+      showToast('Invitación y enlace copiados para compartir');
+    } catch {
+      showToast('Copia el enlace del navegador para compartir');
+    }
+  });
+});
+
+/* ---------- Coreografía GSAP ---------- */
+if (!prefersReducedMotion) {
+  const name = document.querySelector('.hero__name');
+  if (name) {
+    const raw = name.textContent.trim();
+    name.setAttribute('aria-label', raw);
+    name.innerHTML = [...raw]
+      .map((ch) => `<span class="ch" aria-hidden="true"><span>${ch}</span></span>`)
+      .join('');
+  }
+
+  /* Amanecer dorado en el rancho */
   gsap
     .timeline({ defaults: { ease: 'power3.out' } })
-    .from('.sun', { yPercent: 75, duration: 2.6, ease: 'power2.out' }, 0)
-    .from('.hero__glow', { opacity: 0, duration: 2.4, ease: 'sine.out' }, 0)
-    .from('.land__far', { yPercent: 14, opacity: 0, duration: 1.8 }, 0.15)
-    .from('.land__mid', { yPercent: 20, opacity: 0, duration: 1.7 }, 0.3)
-    .from('.land__near', { yPercent: 30, opacity: 0, duration: 1.6 }, 0.45)
-    .from('.cactus', { y: 40, opacity: 0, duration: 1.3, stagger: 0.12 }, 0.9)
-    .from('.hero__eyebrow', { y: 14, opacity: 0, duration: 0.9 }, 0.7)
-    .from('.hat', { y: -60, rotate: -14, opacity: 0, duration: 1.2, ease: 'back.out(1.2)' }, 0.85)
-    .from('.badge', { scale: 0.4, rotate: -30, opacity: 0, duration: 1.2, ease: 'back.out(1.5)' }, 1.0)
-    .from('.badge__num', { scale: 0, opacity: 0, duration: 0.7, ease: 'back.out(2.6)' }, 1.5)
-    .from('.hero__name .ch > span', { yPercent: 118, rotate: 5, duration: 1.15, ease: 'expo.out', stagger: 0.06 }, 1.15)
-    .from('.hero__age, .hero__lede', { y: 20, opacity: 0, duration: 0.9, stagger: 0.12 }, 1.75)
-    .from('.hero__facts, .hero .cta', { y: 18, opacity: 0, duration: 0.8, stagger: 0.12 }, 2.0)
-    .from('.hero__scroll', { opacity: 0, duration: 0.8 }, 2.4);
+    .fromTo('.sun', { y: 46, scale: 0.84, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 2.1, ease: 'power2.out' }, 0)
+    .from('.hero__glow', { opacity: 0, duration: 2.1, ease: 'sine.out' }, 0)
+    .from('.hero__clouds', { y: -12, opacity: 0, duration: 1.8, ease: 'sine.out' }, 0.25)
+    .from('.land__far', { yPercent: 14, opacity: 0, duration: 1.6 }, 0.15)
+    .from('.land__mid', { yPercent: 20, opacity: 0, duration: 1.5 }, 0.28)
+    .from('.land__near', { yPercent: 26, opacity: 0, duration: 1.4 }, 0.4)
+    .fromTo('.hat', { y: -56, rotate: -14, opacity: 0 }, { y: 0, rotate: -3, opacity: 1, duration: 1.15, ease: 'back.out(1.2)' }, 0.65)
+    .fromTo('.badge', { scale: 0.45, rotate: -28, opacity: 0 }, { scale: 1, rotate: 0, opacity: 1, duration: 1.15, ease: 'back.out(1.45)' }, 0.78)
+    .from('.badge__num', { scale: 0, opacity: 0, duration: 0.65, ease: 'back.out(2.5)' }, 1.25)
+    .from('.hero__crest-hint', { y: 8, opacity: 0, duration: 0.7 }, 1.5)
+    .from('.hero__name .ch > span', { yPercent: 118, rotate: 5, duration: 1.1, ease: 'expo.out', stagger: 0.055 }, 0.95)
+    .from('.hero__age, .hero__lede', { y: 18, opacity: 0, duration: 0.85, stagger: 0.12 }, 1.5)
+    .from('.hero__facts, .hero__actions', { y: 16, opacity: 0, duration: 0.8, stagger: 0.12 }, 1.75)
+    .from('.hero__scroll', { opacity: 0, duration: 0.75 }, 2.05);
 
-  /* ---------- Al hacer scroll: el sol se pone y las capas se separan ---------- */
-  const heroScrub = { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true };
-  gsap.to('.sun', { yPercent: -70, opacity: 0, ease: 'none', scrollTrigger: heroScrub });
-  gsap.to('.land__far', { yPercent: 8, ease: 'none', scrollTrigger: heroScrub });
-  gsap.to('.land__mid', { yPercent: 16, ease: 'none', scrollTrigger: heroScrub });
-  gsap.to('.hero__inner', { y: -40, opacity: 0.2, ease: 'none', scrollTrigger: heroScrub });
+  /* Parallax suave al hacer scroll: el sol desciende sin conflictos ni saltos */
+  const heroScrub = {
+    trigger: '.hero',
+    start: 'top top',
+    end: 'bottom top',
+    scrub: 0.35,
+    invalidateOnRefresh: true,
+  };
+  gsap.fromTo(
+    '.sun-wrap',
+    { y: 0, scale: 1 },
+    { y: () => window.innerHeight * 0.32, scale: 0.92, ease: 'none', immediateRender: false, scrollTrigger: heroScrub },
+  );
+  gsap.fromTo(
+    '.land__far',
+    { yPercent: 0 },
+    { yPercent: 8, ease: 'none', immediateRender: false, scrollTrigger: heroScrub },
+  );
+  gsap.fromTo(
+    '.land__mid',
+    { yPercent: 0 },
+    { yPercent: 15, ease: 'none', immediateRender: false, scrollTrigger: heroScrub },
+  );
+  gsap.fromTo(
+    '.hero__inner',
+    { y: 0, opacity: 1 },
+    { y: -32, opacity: 0.3, ease: 'none', immediateRender: false, scrollTrigger: heroScrub },
+  );
 
-  /* Los rayos del distintivo giran muy despacio. */
+  /* Rayos y respiración del distintivo */
   gsap.to('.badge__rays', {
-    rotate: 20,
-    duration: 22,
+    rotate: 22,
+    duration: 24,
     repeat: -1,
     yoyo: true,
     ease: 'sine.inOut',
   });
 
-  /* ---------- Apariciones al hacer scroll ---------- */
+  gsap.to('.badge__star', {
+    scale: 1.04,
+    duration: 2.3,
+    yoyo: true,
+    repeat: -1,
+    ease: 'sine.inOut',
+  });
+
+  /* Apariciones al hacer scroll */
   gsap.utils.toArray('[data-reveal]').forEach((element) => {
     gsap.from(element, {
-      y: 36,
+      y: 30,
       opacity: 0,
-      duration: 0.95,
+      duration: 0.9,
       ease: 'power3.out',
       scrollTrigger: {
         trigger: element,
-        start: 'top 86%',
+        start: 'top 88%',
         once: true,
       },
     });
   });
 
-  /* ---------- Cinta vaquera ---------- */
-  gsap.fromTo(
-    '.marquee__track',
-    { x: 0 },
-    {
-      x: -140,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '.marquee',
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: 0.6,
-      },
-    },
-  );
-
+  /* Planta rodadora sobre la cinta */
   gsap.fromTo(
     '.tumbleweed',
     { x: 0, rotate: 0 },
@@ -98,10 +312,10 @@ if (!prefersReducedMotion) {
     },
   );
 
-  /* ---------- La cuerda se dibuja ---------- */
+  /* La cuerda se dibuja con DrawSVG */
   gsap.from('.rope path', {
     drawSVG: '0%',
-    duration: 1.4,
+    duration: 1.35,
     ease: 'power2.inOut',
     scrollTrigger: {
       trigger: '.rope',
@@ -110,15 +324,30 @@ if (!prefersReducedMotion) {
     },
   });
 
-  /* ---------- El letrero se balancea al entrar ---------- */
+  /* Cartel "Se busca" colgado del clavo */
+  gsap.from('.wanted', {
+    rotate: 6,
+    transformOrigin: '50% 4%',
+    duration: 1.7,
+    ease: 'elastic.out(1, 0.52)',
+    scrollTrigger: { trigger: '.wanted', start: 'top 86%', once: true },
+  });
+
+  /* Letrero del rancho con balanceo sutil */
   gsap.from('.sign', {
-    y: 34,
-    rotate: -5,
+    y: 30,
+    rotate: -4.5,
     opacity: 0,
-    duration: 1.15,
+    duration: 1.1,
     ease: 'power3.out',
     onComplete: () =>
-      gsap.to('.sign', { rotate: -0.2, duration: 3.4, yoyo: true, repeat: -1, ease: 'sine.inOut' }),
+      gsap.to('.sign', {
+        rotate: 0.4,
+        duration: 3.6,
+        yoyo: true,
+        repeat: -1,
+        ease: 'sine.inOut',
+      }),
     scrollTrigger: {
       trigger: '.sign',
       start: 'top 86%',
@@ -126,67 +355,39 @@ if (!prefersReducedMotion) {
     },
   });
 
-  /* ---------- Vida: la estrella respira y estalla al tocarla ---------- */
-  gsap.to('.badge__star', { scale: 1.045, duration: 2.2, yoyo: true, repeat: -1, ease: 'sine.inOut' });
-
-  const badge = document.querySelector('.badge');
-  const palette = ['#d9a13b', '#b04a2a', '#6d7c55', '#2f4757'];
-  const burst = () => {
-    const r = badge.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    for (let i = 0; i < 16; i += 1) {
-      const star = document.createElement('span');
-      star.className = 'confetti';
-      star.textContent = '✦';
-      star.style.cssText = `left:${cx}px;top:${cy}px;color:${palette[i % 4]}`;
-      document.body.append(star);
-      const angle = (Math.PI * 2 * i) / 16 + Math.random() * 0.4;
-      const dist = 80 + Math.random() * 110;
-      gsap.fromTo(
-        star,
-        { scale: 0.3, opacity: 1 },
-        {
-          x: Math.cos(angle) * dist,
-          y: Math.sin(angle) * dist + 40,
-          rotate: Math.random() * 400 - 200,
-          scale: 0.9 + Math.random() * 1.1,
-          opacity: 0,
-          duration: 1.1 + Math.random() * 0.6,
-          ease: 'power2.out',
-          onComplete: () => star.remove(),
-        },
-      );
-    }
-    gsap.fromTo('.badge__num', { scale: 0.7 }, { scale: 1, duration: 0.9, ease: 'elastic.out(1, 0.4)' });
-  };
-  badge.setAttribute('role', 'button');
-  badge.setAttribute('tabindex', '0');
-  badge.setAttribute('aria-label', 'Lanzar estrellas');
-  badge.addEventListener('click', burst);
-  badge.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      burst();
-    }
-  });
-
-  /* ---------- El cartel cuelga de un clavo y se columpia ---------- */
-  gsap.from('.wanted', {
-    rotate: 8,
-    transformOrigin: '50% 0%',
-    duration: 1.8,
-    ease: 'elastic.out(1, 0.5)',
-    scrollTrigger: { trigger: '.wanted', start: 'top 85%', once: true },
-  });
-
-  /* ---------- Sale la luna ---------- */
-  gsap.from('.footer__moon', {
-    y: 70,
+  /* Sale la luna y el campo del rancho cobra vida */
+  gsap.from('.footer__moon-wrap', {
+    y: 56,
     opacity: 0,
-    duration: 1.8,
+    duration: 1.6,
     ease: 'power3.out',
-    scrollTrigger: { trigger: '.footer', start: 'top 85%', once: true },
+    scrollTrigger: { trigger: '.footer', start: 'top 80%', once: true },
+  });
+
+  gsap.from('.ranch__far', {
+    yPercent: 10,
+    opacity: 0,
+    duration: 1.3,
+    ease: 'power2.out',
+    scrollTrigger: { trigger: '.footer', start: 'top 78%', once: true },
+  });
+
+  gsap.from('.ranch__mid, .ranch__fence, .ranch__barn, .ranch__windmill', {
+    y: 26,
+    opacity: 0,
+    duration: 1.2,
+    stagger: 0.08,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: '.footer', start: 'top 75%', once: true },
+  });
+
+  gsap.from('.ranch__animal', {
+    y: 20,
+    opacity: 0,
+    duration: 1,
+    stagger: 0.12,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: '.footer', start: 'top 72%', once: true },
   });
 
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
@@ -211,12 +412,17 @@ if (countdown) {
     cells.h.textContent = pad(Math.floor((s % 86400) / 3600));
     cells.m.textContent = pad(Math.floor((s % 3600) / 60));
     cells.s.textContent = pad(s % 60);
-    if (!prefersReducedMotion) {
-      gsap.fromTo(cells.s, { yPercent: -35, opacity: 0.25 }, { yPercent: 0, opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: true });
+
+    if (!prefersReducedMotion && diff > 0) {
+      gsap.fromTo(
+        cells.s,
+        { yPercent: -28, opacity: 0.3 },
+        { yPercent: 0, opacity: 1, duration: 0.32, ease: 'power2.out', overwrite: true },
+      );
     }
 
-    if (diff === 0) {
-      title.textContent = '¡Ya empezó la fiesta!';
+    if (diff === 0 && title) {
+      title.textContent = '¡Ya empezó la fiesta de Leandro!';
       clearInterval(timer);
     }
   };
@@ -228,29 +434,27 @@ if (countdown) {
 /* ---------- Estrellas del cielo nocturno ---------- */
 const sky = document.querySelector('.footer__stars');
 if (sky) {
-  for (let i = 0; i < 32; i += 1) {
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < 48; i += 1) {
     const dot = document.createElement('i');
-    dot.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;--s:${(1 + Math.random() * 2).toFixed(1)}px;--d:${(Math.random() * 4).toFixed(1)}s`;
-    sky.append(dot);
+    dot.style.left = `${(Math.random() * 100).toFixed(2)}%`;
+    dot.style.top = `${(8 + Math.random() * 88).toFixed(2)}%`;
+    dot.style.setProperty('--s', `${(1.2 + Math.random() * 2.4).toFixed(1)}px`);
+    dot.style.setProperty('--d', `${(Math.random() * 4.2).toFixed(1)}s`);
+    fragment.append(dot);
   }
+  sky.append(fragment);
 }
 
-/* ---------- Barra de acciones: aparece al salir del hero ---------- */
-const dock = document.querySelector('.dock');
-if (dock && 'IntersectionObserver' in window) {
-  const hidden = new Set(['.hero']);
-  const sync = () => dock.classList.toggle('is-on', hidden.size === 0);
-  ['.hero', '.footer'].forEach((selector) => {
-    const el = document.querySelector(selector);
-    if (!el) return;
-    new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) hidden.add(selector);
-        else hidden.delete(selector);
-        sync();
-      },
-      { threshold: 0.15 },
-    ).observe(el);
-  });
-  sync();
+/* ---------- Visibilidad inteligente de la barra superior (desktop) ---------- */
+const topbar = document.querySelector('.topbar');
+const heroEl = document.querySelector('.hero');
+
+if (topbar && heroEl && 'IntersectionObserver' in window) {
+  new IntersectionObserver(
+    ([entry]) => {
+      topbar.classList.toggle('is-on', !entry.isIntersecting);
+    },
+    { threshold: 0.18 },
+  ).observe(heroEl);
 }

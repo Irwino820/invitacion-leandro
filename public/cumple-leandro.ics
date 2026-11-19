@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Familia de Leandro//Cumple 2 Leandro//ES
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:cumple-2-leandro-20261225@invitacion-leandro
+DTSTAMP:20261119T120000Z
+DTSTART:20261225T210000Z
+DTEND:20261226T020000Z
+SUMMARY:Cumple 2 de Leandro · Fiesta vaquera
+DESCRIPTION:¡Acompáñanos a celebrar los 2 años de Leandro! Una tarde de sombreros, estrellas y pastel en La Estación Rincón.
+LOCATION:José García #210\, La Estación Rincón
+STATUS:CONFIRMED
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:En 2 horas empieza la fiesta vaquera de Leandro
+END:VALARM
+END:VEVENT
+END:VCALENDAR

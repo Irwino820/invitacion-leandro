@@ -33,9 +33,12 @@ Casi todo el texto está directamente en `index.html`:
 | --- | --- |
 | Nombre, edad y frase de portada | `.hero__name`, `.hero__age`, `.hero__lede` |
 | Fecha, hora y lugar de la portada | `.hero__facts` |
-| Boleto del gran día | `.ticket` |
-| Dirección y botón **Cómo llegar** | `.place`, enlace `.cta--rust` |
-| Cierre | `.footer` |
+| Boleto oficial del gran día | `.ticket` |
+| Cuenta regresiva y calendario | `.countdown`, `public/cumple-leandro.ics` |
+| Cartel «Se busca» y foto opcional | `.wanted` (si agregas `public/leandro.jpg` se muestra automáticamente) |
+| Tarjetas de ambiente | `.highlights` |
+| Dirección, copiar y mapas | `.place` (Google Maps, Waze y botón copiar) |
+| Cierre y compartir | `.footer` |
 
 El enlace **Cómo llegar** es una búsqueda de Google Maps con la dirección José García #210, La Estación Rincón. Sustitúyelo por la ubicación exacta si hace falta.
 
@@ -81,11 +84,12 @@ El proyecto es estático y se puede publicar en Vercel, Netlify, Cloudflare Page
 
 ```text
 public/
-  favicon.svg   Estrella con el número 2
-  og.png        Imagen social 1200 × 630
+  cumple-leandro.ics  Evento de calendario (Apple, Outlook, etc.)
+  favicon.svg         Estrella con el número 2
+  og.png              Imagen social 1200 × 630
 src/
-  main.js       Animaciones GSAP
-  styles.css    Sistema visual y responsive
-index.html      Estructura, textos y metadatos
-vite.config.js  Inyección de VITE_SITE_URL
+  main.js             Animaciones GSAP, cuenta regresiva, compartir y avisos
+  styles.css          Sistema visual editorial, responsive e impresión
+index.html            Estructura, textos y metadatos
+vite.config.js        Inyección de VITE_SITE_URL
 ```
