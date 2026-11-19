@@ -12,6 +12,16 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+    server: {
+      headers: {
+        'Permissions-Policy': 'autoplay=*',
+      },
+    },
+    preview: {
+      headers: {
+        'Permissions-Policy': 'autoplay=*',
+      },
+    },
     plugins: [
       {
         name: 'inject-site-url',

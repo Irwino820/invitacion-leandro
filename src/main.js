@@ -459,17 +459,23 @@ if (topbar && heroEl && 'IntersectionObserver' in window) {
   ).observe(heroEl);
 }
 
-/* ---------- Música de fondo (Bartolito) con desbloqueo táctil en celular ---------- */
+/* ---------- Música de fondo (Bartolito): arranque automático a los 500 ms ---------- */
 const audio = document.getElementById('bg-music');
 const musicBtn = document.querySelector('[data-music-toggle]');
 const musicLabel = document.querySelector('[data-music-label]');
 
 if (audio && musicBtn) {
-  audio.volume = 0.75;
+  const START_DELAY_MS = 500;
+  const TARGET_VOLUME = 0.75;
+  const enteredAt = performance.now();
   let userPaused = false;
+  let isAudiblePlaying = false;
   let wasPlayingBeforeHide = false;
+  let startTimer = 0;
+  let retryTimer = 0;
 
   const syncMusicUI = (playing) => {
+    isAudiblePlaying = playing;
     musicBtn.classList.toggle('is-playing', playing);
     musicBtn.setAttribute('aria-pressed', String(playing));
     if (musicLabel) {
@@ -477,66 +483,125 @@ if (audio && musicBtn) {
     }
   };
 
-  const tryPlay = async () => {
-    if (userPaused) return;
+  const unlockEvents = [
+    'pointerdown',
+    'pointermove',
+    'touchstart',
+    'touchmove',
+    'touchend',
+    'click',
+    'keydown',
+    'wheel',
+    'scroll',
+    'mousemove',
+    'focus',
+    'pageshow',
+  ];
+
+  const stopAutoRetries = () => {
+    window.clearInterval(retryTimer);
+    retryTimer = 0;
+    unlockEvents.forEach((evt) =>
+      window.removeEventListener(evt, onAnyActivity, { capture: true }),
+    );
+  };
+
+  /* Activa el sonido real (0.75) a los 500 ms usando HTMLAudioElement + Web Audio API */
+  let audioCtx = null;
+  const ensureAudioContext = () => {
     try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!audioCtx) {
+        audioCtx = new Ctx();
+        const source = audioCtx.createMediaElementSource(audio);
+        source.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+    } catch {
+      /* Fallback limpio a HTMLAudioElement directo */
+    }
+  };
+
+  const startAudiblePlayback = async () => {
+    if (userPaused || isAudiblePlaying) return;
+    try {
+      ensureAudioContext();
+      audio.muted = false;
+      audio.volume = TARGET_VOLUME;
       await audio.play();
-      syncMusicUI(true);
+      if (!audio.paused) {
+        syncMusicUI(true);
+        stopAutoRetries();
+      }
     } catch {
       syncMusicUI(false);
     }
   };
 
-  audio.addEventListener('play', () => syncMusicUI(true));
-  audio.addEventListener('pause', () => syncMusicUI(false));
+  function onAnyActivity(event) {
+    if (event?.target instanceof Node && musicBtn.contains(event.target)) return;
+    if (userPaused || isAudiblePlaying) {
+      stopAutoRetries();
+      return;
+    }
+    const elapsed = performance.now() - enteredAt;
+    const remaining = Math.max(0, START_DELAY_MS - elapsed);
+    window.clearTimeout(startTimer);
+    if (remaining === 0) {
+      startAudiblePlayback();
+    } else {
+      startTimer = window.setTimeout(startAudiblePlayback, remaining);
+    }
+  }
+
+  unlockEvents.forEach((evt) =>
+    window.addEventListener(evt, onAnyActivity, { passive: true, capture: true }),
+  );
+
+  audio.addEventListener('play', () => {
+    if (!audio.muted && audio.volume > 0.01) {
+      syncMusicUI(true);
+    }
+  });
+
+  audio.addEventListener('pause', () => {
+    if (userPaused) {
+      syncMusicUI(false);
+    }
+  });
 
   musicBtn.addEventListener('click', async (event) => {
     event.stopPropagation();
-    if (audio.paused) {
+    window.clearTimeout(startTimer);
+    if (audio.paused || !isAudiblePlaying) {
       userPaused = false;
-      try {
-        await audio.play();
-        syncMusicUI(true);
-      } catch {
-        showToast('Toca de nuevo para reproducir la música');
-      }
+      await startAudiblePlayback();
     } else {
       userPaused = true;
+      stopAutoRetries();
       audio.pause();
       syncMusicUI(false);
     }
   });
 
-  /* En celulares, el navegador permite iniciar el audio al primer toque en la pantalla */
-  const unlockEvents = ['click', 'touchstart', 'keydown'];
-  const unlockOnFirstGesture = (event) => {
-    if (musicBtn.contains(event.target)) return;
-    if (!audio.paused || userPaused) {
-      unlockEvents.forEach((evt) => document.removeEventListener(evt, unlockOnFirstGesture));
-      return;
-    }
-    audio
-      .play()
-      .then(() => {
-        syncMusicUI(true);
-        unlockEvents.forEach((evt) => document.removeEventListener(evt, unlockOnFirstGesture));
-      })
-      .catch(() => {});
-  };
-
-  unlockEvents.forEach((evt) =>
-    document.addEventListener(evt, unlockOnFirstGesture, { passive: true }),
-  );
-
   /* Pausa amable al salir de la pestaña o bloquear el celular */
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-      wasPlayingBeforeHide = !audio.paused;
+      wasPlayingBeforeHide = isAudiblePlaying && !audio.paused;
       if (wasPlayingBeforeHide) audio.pause();
     } else if (wasPlayingBeforeHide && !userPaused) {
-      tryPlay();
+      startAudiblePlayback();
     }
   });
 
-  tryPlay();
+  /* Disparo automático exactamente a los 500 ms de entrar al sitio */
+  startTimer = window.setTimeout(() => {
+    startAudiblePlayback();
+    if (!isAudiblePlaying && !retryTimer) {
+      retryTimer = window.setInterval(startAudiblePlayback, 600);
+    }
+  }, START_DELAY_MS);
 }
