@@ -458,3 +458,85 @@ if (topbar && heroEl && 'IntersectionObserver' in window) {
     { threshold: 0.18 },
   ).observe(heroEl);
 }
+
+/* ---------- Música de fondo (Bartolito) con desbloqueo táctil en celular ---------- */
+const audio = document.getElementById('bg-music');
+const musicBtn = document.querySelector('[data-music-toggle]');
+const musicLabel = document.querySelector('[data-music-label]');
+
+if (audio && musicBtn) {
+  audio.volume = 0.75;
+  let userPaused = false;
+  let wasPlayingBeforeHide = false;
+
+  const syncMusicUI = (playing) => {
+    musicBtn.classList.toggle('is-playing', playing);
+    musicBtn.setAttribute('aria-pressed', String(playing));
+    if (musicLabel) {
+      musicLabel.textContent = playing ? 'Sonando' : 'Música';
+    }
+  };
+
+  const tryPlay = async () => {
+    if (userPaused) return;
+    try {
+      await audio.play();
+      syncMusicUI(true);
+    } catch {
+      syncMusicUI(false);
+    }
+  };
+
+  audio.addEventListener('play', () => syncMusicUI(true));
+  audio.addEventListener('pause', () => syncMusicUI(false));
+
+  musicBtn.addEventListener('click', async (event) => {
+    event.stopPropagation();
+    if (audio.paused) {
+      userPaused = false;
+      try {
+        await audio.play();
+        syncMusicUI(true);
+      } catch {
+        showToast('Toca de nuevo para reproducir la música');
+      }
+    } else {
+      userPaused = true;
+      audio.pause();
+      syncMusicUI(false);
+    }
+  });
+
+  /* En celulares, el navegador permite iniciar el audio al primer toque en la pantalla */
+  const unlockEvents = ['click', 'touchstart', 'keydown'];
+  const unlockOnFirstGesture = (event) => {
+    if (musicBtn.contains(event.target)) return;
+    if (!audio.paused || userPaused) {
+      unlockEvents.forEach((evt) => document.removeEventListener(evt, unlockOnFirstGesture));
+      return;
+    }
+    audio
+      .play()
+      .then(() => {
+        syncMusicUI(true);
+        unlockEvents.forEach((evt) => document.removeEventListener(evt, unlockOnFirstGesture));
+      })
+      .catch(() => {});
+  };
+
+  unlockEvents.forEach((evt) =>
+    document.addEventListener(evt, unlockOnFirstGesture, { passive: true }),
+  );
+
+  /* Pausa amable al salir de la pestaña o bloquear el celular */
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      wasPlayingBeforeHide = !audio.paused;
+      if (wasPlayingBeforeHide) audio.pause();
+    } else if (wasPlayingBeforeHide && !userPaused) {
+      tryPlay();
+    }
+  });
+
+  tryPlay();
+}

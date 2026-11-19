@@ -86,9 +86,10 @@ El proyecto es estático y se puede publicar en Vercel, Netlify, Cloudflare Page
 public/
   cumple-leandro.ics  Evento de calendario (Apple, Outlook, etc.)
   favicon.svg         Estrella con el número 2
+  musica.mp3          Canción de fondo de la invitación
   og.png              Imagen social 1200 × 630
 src/
-  main.js             Animaciones GSAP, cuenta regresiva, compartir y avisos
+  main.js             Animaciones GSAP, música, cuenta regresiva, compartir y avisos
   styles.css          Sistema visual editorial, responsive e impresión
 index.html            Estructura, textos y metadatos
 vite.config.js        Inyección de VITE_SITE_URL

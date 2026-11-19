@@ -980,6 +980,28 @@
       </div>
     </footer>
 
+    <!-- Control flotante de música de fondo -->
+    <audio id="bg-music" src="/musica.mp3" loop preload="auto"></audio>
+    <button
+      class="music-btn"
+      type="button"
+      data-music-toggle
+      aria-label="Música de fondo"
+      aria-pressed="false"
+    >
+      <span class="music-btn__disc" aria-hidden="true">
+        <svg class="music-btn__icon-note" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 14.5V4.8l8-1.6v9.7" />
+          <circle cx="5.8" cy="14.5" r="2.2" />
+          <circle cx="13.8" cy="12.9" r="2.2" />
+        </svg>
+        <span class="music-btn__bars">
+          <i></i><i></i><i></i><i></i>
+        </span>
+      </span>
+      <span class="music-btn__label" data-music-label>Música</span>
+    </button>
+
     <!-- Notificación accesible en capa superior (Popover API + fallback) -->
     <div id="app-toast" class="toast" popover="manual" role="status" aria-live="polite">
       <span class="toast__star" aria-hidden="true">✦</span>

@@ -2040,6 +2040,117 @@
     pointer-events: none;
   }
 
+  /* ---------- Botón flotante de música ---------- */
+
+  .music-btn {
+    position: fixed;
+    right: clamp(0.85rem, 2.5vw, 1.4rem);
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    z-index: 52;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-block-size: 2.9rem;
+    padding: 0.35rem 0.95rem 0.35rem 0.4rem;
+    border: 1.5px solid var(--mustard-bright);
+    border-radius: 999px;
+    background: rgba(26, 42, 54, 0.92);
+    color: var(--paper-soft);
+    box-shadow:
+      0 14px 32px -12px rgba(10, 19, 24, 0.68),
+      0 0 0 3px rgba(250, 243, 229, 0.14);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      background 0.25s ease,
+      border-color 0.25s ease;
+  }
+
+  .music-btn:hover {
+    transform: translateY(-2px);
+    background: var(--denim-deep);
+  }
+
+  .music-btn:active {
+    transform: scale(0.96);
+  }
+
+  .music-btn__disc {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 50%;
+    background: var(--rust);
+    color: var(--paper-soft);
+    box-shadow: inset 0 0 0 1px rgba(250, 243, 229, 0.28);
+    transition: background 0.25s ease;
+  }
+
+  .music-btn.is-playing .music-btn__disc {
+    background: var(--mustard);
+    color: var(--ink);
+  }
+
+  .music-btn__icon-note {
+    width: 1.05rem;
+    height: 1.05rem;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .music-btn.is-playing .music-btn__icon-note {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .music-btn__bars {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .music-btn.is-playing .music-btn__bars {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .music-btn__bars i {
+    width: 2px;
+    height: 11px;
+    border-radius: 999px;
+    background: currentColor;
+    transform-origin: 50% 100%;
+    animation: sound-wave 0.85s ease-in-out infinite alternate;
+  }
+
+  .music-btn__bars i:nth-child(1) { height: 7px; animation-delay: 0s; }
+  .music-btn__bars i:nth-child(2) { height: 12px; animation-delay: 0.18s; }
+  .music-btn__bars i:nth-child(3) { height: 9px; animation-delay: 0.34s; }
+  .music-btn__bars i:nth-child(4) { height: 11px; animation-delay: 0.12s; }
+
+  @keyframes sound-wave {
+    0% { transform: scaleY(0.35); }
+    100% { transform: scaleY(1); }
+  }
+
+  .music-btn__label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
   /* ---------- Toast accesible en capa superior (Popover API + fallback) ---------- */
 
   .toast {
@@ -2323,6 +2434,7 @@
   .cta,
   .copy-btn,
   .footer__share,
+  .music-btn,
   .toast__close {
     min-block-size: 2.75rem;
   }
@@ -2344,8 +2456,13 @@
   .copy-btn,
   .highlight-card,
   .ticket,
-  .badge {
+  .badge,
+  .music-btn {
     transition: none;
+  }
+
+  .music-btn__bars i {
+    animation: none;
   }
 
   .spark {
@@ -2401,6 +2518,7 @@
   .sign__plate,
   .cta,
   .copy-btn,
+  .music-btn,
   .toast {
     border: 1px solid CanvasText;
   }
@@ -2421,6 +2539,7 @@
   .grain,
   .scroll-bar,
   .topbar,
+  .music-btn,
   .toast,
   .hero__scroll,
   .hero__actions,
