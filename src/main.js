@@ -205,6 +205,9 @@ document.querySelectorAll('[data-share]').forEach((btn) => {
 });
 
 /* ---------- Coreografía GSAP ---------- */
+/* La portada queda en pausa hasta que el invitado toque la pantalla de entrada */
+let heroIntro = null;
+
 if (!prefersReducedMotion) {
   const name = document.querySelector('.hero__name');
   if (name) {
@@ -216,8 +219,8 @@ if (!prefersReducedMotion) {
   }
 
   /* Amanecer dorado en el rancho */
-  gsap
-    .timeline({ defaults: { ease: 'power3.out' } })
+  heroIntro = gsap
+    .timeline({ paused: true, defaults: { ease: 'power3.out' } })
     .fromTo('.sun', { y: 46, scale: 0.84, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 2.1, ease: 'power2.out' }, 0)
     .from('.hero__glow', { opacity: 0, duration: 2.1, ease: 'sine.out' }, 0)
     .from('.hero__clouds', { y: -12, opacity: 0, duration: 1.8, ease: 'sine.out' }, 0.25)
@@ -459,149 +462,110 @@ if (topbar && heroEl && 'IntersectionObserver' in window) {
   ).observe(heroEl);
 }
 
-/* ---------- Música de fondo (Bartolito): arranque automático a los 500 ms ---------- */
+/* ---------- Música de fondo ---------- */
 const audio = document.getElementById('bg-music');
 const musicBtn = document.querySelector('[data-music-toggle]');
 const musicLabel = document.querySelector('[data-music-label]');
+const MUSIC_VOLUME = 0.75;
+let userPaused = false;
+let wasPlayingBeforeHide = false;
+
+const syncMusicUI = (playing) => {
+  if (!musicBtn) return;
+  musicBtn.classList.toggle('is-playing', playing);
+  musicBtn.setAttribute('aria-pressed', String(playing));
+  if (musicLabel) musicLabel.textContent = playing ? 'Sonando' : 'Música';
+};
+
+const startMusic = async ({ fade = false } = {}) => {
+  if (!audio || userPaused) return;
+  try {
+    audio.volume = fade ? 0 : MUSIC_VOLUME;
+    await audio.play();
+    if (fade && !prefersReducedMotion) {
+      gsap.to(audio, { volume: MUSIC_VOLUME, duration: 1.6, ease: 'sine.inOut' });
+    } else {
+      audio.volume = MUSIC_VOLUME;
+    }
+    syncMusicUI(true);
+  } catch {
+    syncMusicUI(false);
+  }
+};
 
 if (audio && musicBtn) {
-  const START_DELAY_MS = 500;
-  const TARGET_VOLUME = 0.75;
-  const enteredAt = performance.now();
-  let userPaused = false;
-  let isAudiblePlaying = false;
-  let wasPlayingBeforeHide = false;
-  let startTimer = 0;
-  let retryTimer = 0;
+  audio.addEventListener('play', () => syncMusicUI(true));
+  audio.addEventListener('pause', () => syncMusicUI(false));
 
-  const syncMusicUI = (playing) => {
-    isAudiblePlaying = playing;
-    musicBtn.classList.toggle('is-playing', playing);
-    musicBtn.setAttribute('aria-pressed', String(playing));
-    if (musicLabel) {
-      musicLabel.textContent = playing ? 'Sonando' : 'Música';
-    }
-  };
-
-  const unlockEvents = [
-    'pointerdown',
-    'pointermove',
-    'touchstart',
-    'touchmove',
-    'touchend',
-    'click',
-    'keydown',
-    'wheel',
-    'scroll',
-    'mousemove',
-    'focus',
-    'pageshow',
-  ];
-
-  const stopAutoRetries = () => {
-    window.clearInterval(retryTimer);
-    retryTimer = 0;
-    unlockEvents.forEach((evt) =>
-      window.removeEventListener(evt, onAnyActivity, { capture: true }),
-    );
-  };
-
-  /* Activa el sonido real (0.75) a los 500 ms usando HTMLAudioElement + Web Audio API */
-  let audioCtx = null;
-  const ensureAudioContext = () => {
-    try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return;
-      if (!audioCtx) {
-        audioCtx = new Ctx();
-        const source = audioCtx.createMediaElementSource(audio);
-        source.connect(audioCtx.destination);
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(() => {});
-      }
-    } catch {
-      /* Fallback limpio a HTMLAudioElement directo */
-    }
-  };
-
-  const startAudiblePlayback = async () => {
-    if (userPaused || isAudiblePlaying) return;
-    try {
-      ensureAudioContext();
-      audio.muted = false;
-      audio.volume = TARGET_VOLUME;
-      await audio.play();
-      if (!audio.paused) {
-        syncMusicUI(true);
-        stopAutoRetries();
-      }
-    } catch {
-      syncMusicUI(false);
-    }
-  };
-
-  function onAnyActivity(event) {
-    if (event?.target instanceof Node && musicBtn.contains(event.target)) return;
-    if (userPaused || isAudiblePlaying) {
-      stopAutoRetries();
-      return;
-    }
-    const elapsed = performance.now() - enteredAt;
-    const remaining = Math.max(0, START_DELAY_MS - elapsed);
-    window.clearTimeout(startTimer);
-    if (remaining === 0) {
-      startAudiblePlayback();
-    } else {
-      startTimer = window.setTimeout(startAudiblePlayback, remaining);
-    }
-  }
-
-  unlockEvents.forEach((evt) =>
-    window.addEventListener(evt, onAnyActivity, { passive: true, capture: true }),
-  );
-
-  audio.addEventListener('play', () => {
-    if (!audio.muted && audio.volume > 0.01) {
-      syncMusicUI(true);
-    }
-  });
-
-  audio.addEventListener('pause', () => {
-    if (userPaused) {
-      syncMusicUI(false);
-    }
-  });
-
-  musicBtn.addEventListener('click', async (event) => {
-    event.stopPropagation();
-    window.clearTimeout(startTimer);
-    if (audio.paused || !isAudiblePlaying) {
+  musicBtn.addEventListener('click', () => {
+    if (audio.paused) {
       userPaused = false;
-      await startAudiblePlayback();
+      startMusic();
     } else {
       userPaused = true;
-      stopAutoRetries();
       audio.pause();
-      syncMusicUI(false);
     }
   });
 
-  /* Pausa amable al salir de la pestaña o bloquear el celular */
+  /* Pausa al salir de la pestaña o bloquear el celular y retoma al volver */
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-      wasPlayingBeforeHide = isAudiblePlaying && !audio.paused;
+      wasPlayingBeforeHide = !audio.paused;
       if (wasPlayingBeforeHide) audio.pause();
     } else if (wasPlayingBeforeHide && !userPaused) {
-      startAudiblePlayback();
+      startMusic();
     }
   });
+}
 
-  /* Disparo automático exactamente a los 500 ms de entrar al sitio */
-  startTimer = window.setTimeout(() => {
-    startAudiblePlayback();
-    if (!isAudiblePlaying && !retryTimer) {
-      retryTimer = window.setInterval(startAudiblePlayback, 600);
+/* ---------- Pantalla de entrada: el toque inicia música y portada ----------
+   Los navegadores (sobre todo en celular) solo permiten reproducir audio tras un
+   toque del usuario. Esta pantalla convierte ese toque en parte de la experiencia. */
+const gate = document.getElementById('gate');
+const gateOpenBtns = gate?.querySelectorAll('[data-gate-open]');
+const gateSilentBtn = gate?.querySelector('[data-gate-silent]');
+
+if (gate && gateOpenBtns?.length) {
+  /* Pasa de diálogo abierto (visible desde el primer render) a modal accesible */
+  try {
+    gate.close();
+    gate.showModal();
+  } catch {
+    gate.setAttribute('open', '');
+  }
+
+  /* Escape no debe saltarse la entrada */
+  gate.addEventListener('cancel', (event) => event.preventDefault());
+
+  let entered = false;
+  const enterInvitation = ({ withMusic = true } = {}) => {
+    if (entered) return;
+    entered = true;
+
+    if (withMusic) {
+      /* play() dentro del gesto del usuario: único momento en que iOS/Android lo permiten */
+      startMusic({ fade: true });
+    } else {
+      userPaused = true;
+      syncMusicUI(false);
     }
-  }, START_DELAY_MS);
+
+    window.scrollTo(0, 0);
+    gate.classList.add('is-leaving');
+
+    const leaveMs = prefersReducedMotion ? 0 : 650;
+    window.setTimeout(() => {
+      gate.close();
+      gate.remove();
+      ScrollTrigger.refresh();
+    }, leaveMs);
+
+    /* La portada arranca medio segundo después de entrar */
+    window.setTimeout(() => heroIntro?.play(), prefersReducedMotion ? 0 : 450);
+  };
+
+  gateOpenBtns.forEach((btn) =>
+    btn.addEventListener('click', () => enterInvitation({ withMusic: true })),
+  );
+  gateSilentBtn?.addEventListener('click', () => enterInvitation({ withMusic: false }));
 }

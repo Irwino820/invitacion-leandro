@@ -24,8 +24,9 @@
       content="Viernes 25 de diciembre de 2026 · 3:00 p. m. · José García #210, La Estación Rincón."
     />
     <meta property="og:url" content="%SITE_URL%/" />
-    <meta property="og:image" content="%SITE_URL%/og.png" />
-    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image" content="%SITE_URL%/og.jpg" />
+    <meta property="og:image:secure_url" content="%SITE_URL%/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
@@ -39,7 +40,7 @@
       name="twitter:description"
       content="Viernes 25 de diciembre de 2026 · 3:00 p. m. · José García #210, La Estación Rincón."
     />
-    <meta name="twitter:image" content="%SITE_URL%/og.png" />
+    <meta name="twitter:image" content="%SITE_URL%/og.jpg" />
     <meta
       name="twitter:image:alt"
       content="Invitación vaquera del cumpleaños de Leandro"
@@ -54,9 +55,113 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/src/styles.css" />
+    <noscript><style>.gate { display: none !important; }</style></noscript>
   </head>
   <body>
     <a class="skip-link visually-hidden" href="#contenido">Saltar al contenido</a>
+
+    <!-- Pantalla de entrada: el toque del invitado habilita el audio en el navegador -->
+    <dialog class="gate" id="gate" aria-labelledby="gate-title" tabindex="-1" autofocus open>
+      <div class="gate__glow" aria-hidden="true"></div>
+      <div class="gate__frame" aria-hidden="true">
+        <span class="hero__corner hero__corner--tl">✦</span>
+        <span class="hero__corner hero__corner--tr">✦</span>
+        <span class="hero__corner hero__corner--bl">✦</span>
+        <span class="hero__corner hero__corner--br">✦</span>
+      </div>
+
+      <svg class="gate__land" viewBox="0 0 900 220" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <path d="M0 220V132H74L98 98H186L208 128H278L302 86H386L408 124H514L538 96H622L646 128H734L758 92H838L860 126H900V220Z" fill="#d8ccb5" />
+        <path d="M0 220V160Q135 130 285 148T585 138T900 152V220Z" fill="#ddb08f" />
+        <g>
+          <path d="M0 220V184Q220 162 450 180T900 172V220Z" fill="#8a9768" />
+          <g fill="none" stroke="#62734b" stroke-width="7.5" stroke-linecap="round" opacity="0.72">
+            <path d="M238 196V138" />
+            <path d="M238 168h-11a5 5 0 0 1-5-5v-14" />
+            <path d="M238 156h11a5 5 0 0 0 5-5v-11" />
+            <path d="M662 198V144" />
+            <path d="M662 172h-10a5 5 0 0 1-5-5v-12" />
+            <path d="M662 161h10a5 5 0 0 0 5-5v-10" />
+          </g>
+        </g>
+      </svg>
+
+      <div class="gate__card">
+        <p class="gate__eyebrow">
+          <span class="eyebrow__rule" aria-hidden="true"></span>
+          <span>Estás invitado</span>
+          <span class="eyebrow__rule" aria-hidden="true"></span>
+        </p>
+
+        <button class="gate__seal" type="button" data-gate-open aria-label="Tocar sello para abrir la invitación">
+          <span class="gate__pulse" aria-hidden="true"></span>
+          <span class="gate__pulse gate__pulse--late" aria-hidden="true"></span>
+          <svg class="gate__star" viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+              <linearGradient id="gateGold" x1="18%" y1="10%" x2="82%" y2="90%">
+                <stop offset="0%" stop-color="#f2c967" />
+                <stop offset="52%" stop-color="#d9a13b" />
+                <stop offset="100%" stop-color="#b57d1e" />
+              </linearGradient>
+            </defs>
+            <circle
+              cx="100"
+              cy="104"
+              r="86"
+              fill="none"
+              stroke="rgba(162, 65, 35, 0.25)"
+              stroke-width="1.5"
+              stroke-dasharray="4 5"
+            />
+            <polygon
+              points="100,12 123.5,71.6 187.5,75.6 138,116.4 154.1,178.4 100,144 45.9,178.4 62,116.4 12.5,75.6 76.5,71.6"
+              fill="url(#gateGold)"
+              stroke="#faf3e5"
+              stroke-width="3.6"
+              stroke-linejoin="round"
+            />
+            <polygon
+              points="100,30 118.2,76.8 168.5,80 129.6,112 142.2,160.6 100,133.6 57.8,160.6 70.4,112 31.5,80 81.8,76.8"
+              fill="none"
+              stroke="rgba(250, 243, 229, 0.65)"
+              stroke-width="1.6"
+            />
+          </svg>
+          <span class="gate__num" aria-hidden="true">2</span>
+        </button>
+
+        <div class="gate__copy">
+          <h2 class="gate__title" id="gate-title">Leandro</h2>
+          <p class="gate__sub">¡Cumple <em>dos</em> años!</p>
+          <p class="gate__lede">
+            Viernes 25 de diciembre · 3:00 p.&nbsp;m.<br />
+            La Estación Rincón
+          </p>
+        </div>
+
+        <div class="gate__actions">
+          <button class="cta gate__btn" type="button" data-gate-open>
+            <span>Abrir invitación</span>
+            <span class="cta__icon" aria-hidden="true">→</span>
+          </button>
+
+          <div class="gate__meta">
+            <span class="gate__music">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M8 14.5V4.8l8-1.6v9.7" />
+                <circle cx="5.8" cy="14.5" r="2.2" />
+                <circle cx="13.8" cy="12.9" r="2.2" />
+              </svg>
+              Incluye música
+            </span>
+            <span class="gate__dot" aria-hidden="true">·</span>
+            <button class="gate__silent" type="button" data-gate-silent>
+              Entrar sin sonido
+            </button>
+          </div>
+        </div>
+      </div>
+    </dialog>
 
     <div class="grain" aria-hidden="true"></div>
     <div class="scroll-bar" aria-hidden="true"></div>

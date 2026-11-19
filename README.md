@@ -55,7 +55,7 @@ El enlace **Cómo llegar** es una búsqueda de Google Maps con la dirección Jos
 - `<title>` y `<meta name="description">`
 - `og:title`, `og:description`, `og:image:alt`
 - `twitter:title`, `twitter:description`
-- `public/og.png` (imagen social de 1200 × 630)
+- `public/og.jpg` (imagen social de 1200 × 630, ~116 KB; WhatsApp descarta imágenes de más de ~300 KB)
 - `public/favicon.svg` (estrella con el número 2)
 
 La URL absoluta se inyecta en tiempo de build con `VITE_SITE_URL`:
@@ -87,7 +87,7 @@ public/
   cumple-leandro.ics  Evento de calendario (Apple, Outlook, etc.)
   favicon.svg         Estrella con el número 2
   musica.mp3          Canción de fondo de la invitación
-  og.png              Imagen social 1200 × 630
+  og.jpg              Imagen social 1200 × 630
 src/
   main.js             Animaciones GSAP, música, cuenta regresiva, compartir y avisos
   styles.css          Sistema visual editorial, responsive e impresión
