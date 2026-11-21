@@ -4,6 +4,10 @@ import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 
 gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin);
 
+/* En celular, mostrar/ocultar la barra del navegador dispara "resize" al detener el
+   scroll. Sin esto, ScrollTrigger recalcula todo en ese instante y la página brinca. */
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 const prefersReducedMotion = window.matchMedia(
   '(prefers-reduced-motion: reduce)',
 ).matches;
@@ -47,13 +51,20 @@ toast?.querySelector('.toast__close')?.addEventListener('click', () => {
   if (!supportsPopover) hideToast();
 });
 
-/* ---------- Barra de progreso de lectura ---------- */
+/* ---------- Barra de progreso de lectura ----------
+   Se actualiza solo sobre la propia barra: escribir la variable en <html> obligaba
+   a recalcular los estilos de toda la página en cada cuadro del scroll. */
+const scrollBar = document.querySelector('.scroll-bar');
 let scrollRaf = 0;
+let scrollMax = 0;
+const measureScrollMax = () => {
+  scrollMax = document.documentElement.scrollHeight - window.innerHeight;
+};
 const updateScrollProgress = () => {
   scrollRaf = 0;
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-  document.documentElement.style.setProperty('--scroll-progress', ratio.toFixed(4));
+  if (!scrollBar) return;
+  const ratio = scrollMax > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollMax)) : 0;
+  scrollBar.style.transform = `scaleX(${ratio.toFixed(4)})`;
 };
 
 window.addEventListener(
@@ -65,6 +76,12 @@ window.addEventListener(
   },
   { passive: true },
 );
+window.addEventListener('resize', measureScrollMax, { passive: true });
+window.addEventListener('load', () => {
+  measureScrollMax();
+  updateScrollProgress();
+});
+measureScrollMax();
 updateScrollProgress();
 
 /* ---------- Explosión festiva en la estrella del Sheriff ---------- */
@@ -219,18 +236,21 @@ if (!prefersReducedMotion) {
     .from('.hero__facts, .hero__actions', { y: 16, opacity: 0, duration: 0.8, stagger: 0.12 }, 1.75)
     .from('.hero__scroll', { opacity: 0, duration: 0.75 }, 2.05);
 
-  /* Parallax suave al hacer scroll: el sol desciende sin conflictos ni saltos */
+  /* Parallax al hacer scroll. En pantallas táctiles se usa scrub directo (sin
+     suavizado): con suavizado, la animación seguía moviéndose después de que el
+     dedo se detenía y se percibía como un "brinco" al parar. */
   const heroScrub = {
     trigger: '.hero',
     start: 'top top',
     end: 'bottom top',
-    scrub: 0.35,
-    invalidateOnRefresh: true,
+    scrub: isFinePointer ? 0.35 : true,
   };
+  /* Desplazamiento relativo al propio sol (yPercent): no depende de la altura de
+     la ventana, que en celular cambia al mostrarse/ocultarse la barra. */
   gsap.fromTo(
     '.sun-wrap',
-    { y: 0, scale: 1 },
-    { y: () => window.innerHeight * 0.32, scale: 0.92, ease: 'none', immediateRender: false, scrollTrigger: heroScrub },
+    { yPercent: 0, scale: 1 },
+    { yPercent: 170, scale: 0.92, ease: 'none', immediateRender: false, scrollTrigger: heroScrub },
   );
   gsap.fromTo(
     '.land__far',
@@ -292,7 +312,7 @@ if (!prefersReducedMotion) {
         trigger: '.marquee',
         start: 'top bottom',
         end: 'bottom top',
-        scrub: 1.2,
+        scrub: isFinePointer ? 1.2 : true,
         invalidateOnRefresh: true,
       },
     },
@@ -540,6 +560,8 @@ if (gate && gateOpenBtns?.length) {
     window.setTimeout(() => {
       gate.close();
       gate.remove();
+      measureScrollMax();
+      updateScrollProgress();
       ScrollTrigger.refresh();
     }, leaveMs);
 

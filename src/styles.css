@@ -189,7 +189,8 @@
       var(--mustard)
     );
     transform-origin: 0 50%;
-    transform: scaleX(var(--scroll-progress));
+    transform: scaleX(0);
+    will-change: transform;
     pointer-events: none;
   }
 
@@ -465,8 +466,7 @@
     display: grid;
     place-items: center;
     min-height: 100svh;
-    min-height: 100dvh;
-    padding: clamp(2.8rem, 6dvh, 4.6rem) 0 clamp(5.2rem, 10dvh, 7.2rem);
+    padding: clamp(2.8rem, 6svh, 4.6rem) 0 clamp(5.2rem, 10svh, 7.2rem);
     overflow: hidden;
     text-align: center;
     isolation: isolate;
@@ -524,7 +524,7 @@
   /* Contenedor separado para scroll (sin conflictos con el amanecer de .sun) */
   .sun-wrap {
     position: absolute;
-    top: clamp(2.8rem, 9dvh, 6.2rem);
+    top: clamp(2.8rem, 9svh, 6.2rem);
     right: clamp(2.2rem, 11vw, 9.5rem);
     z-index: 0;
     width: clamp(138px, 18vw, 236px);
@@ -585,7 +585,7 @@
     position: absolute;
     inset: 0 0 auto 0;
     width: 100%;
-    height: clamp(160px, 28dvh, 260px);
+    height: clamp(160px, 28svh, 260px);
     pointer-events: none;
   }
 
@@ -612,7 +612,7 @@
     inset: auto 0 0;
     z-index: 1;
     width: 100%;
-    height: clamp(190px, 31dvh, 310px);
+    height: clamp(190px, 31svh, 310px);
     pointer-events: none;
   }
 
@@ -658,7 +658,7 @@
     position: relative;
     width: clamp(188px, 22vw, 248px);
     height: clamp(208px, 24vw, 264px);
-    margin-block-start: clamp(0.25rem, 1dvh, 0.75rem);
+    margin-block-start: clamp(0.25rem, 1svh, 0.75rem);
   }
 
   .hero__crest-aura {
@@ -763,7 +763,7 @@
   }
 
   .hero__name {
-    margin-block-start: clamp(1.7rem, 3.2dvh, 2.3rem);
+    margin-block-start: clamp(1.7rem, 3.2svh, 2.3rem);
     font-family: var(--display);
     font-size: clamp(4.3rem, 1.7rem + 12vw, 10rem);
     font-weight: 900;
@@ -793,7 +793,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.85rem;
-    margin-block-start: clamp(0.75rem, 1.6dvh, 1.15rem);
+    margin-block-start: clamp(0.75rem, 1.6svh, 1.15rem);
     color: var(--rust);
     font-family: var(--display);
     font-size: clamp(1.55rem, 1rem + 2.2vw, 2.55rem);
@@ -835,7 +835,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.9rem clamp(1.4rem, 3vw, 2.5rem);
-    margin-block-start: clamp(1.5rem, 3dvh, 2.2rem);
+    margin-block-start: clamp(1.5rem, 3svh, 2.2rem);
     padding: 1.05rem clamp(1.25rem, 3vw, 2.2rem);
     border: 1px solid rgba(43, 42, 37, 0.22);
     outline: 1px solid rgba(217, 161, 59, 0.28);
@@ -879,12 +879,12 @@
     align-items: center;
     justify-content: center;
     gap: 0.85rem;
-    margin-block-start: clamp(1.6rem, 3vh, 2.2rem);
+    margin-block-start: clamp(1.6rem, 3svh, 2.2rem);
   }
 
   .hero__scroll {
     position: absolute;
-    bottom: clamp(1.2rem, 2.4vh, 1.9rem);
+    bottom: clamp(1.2rem, 2.4svh, 1.9rem);
     left: 50%;
     z-index: 2;
     color: var(--ink-soft);
@@ -1756,7 +1756,6 @@
     display: grid;
     grid-template-rows: 1fr auto;
     min-height: 100svh;
-    min-height: 100dvh;
     padding: 0;
     background: linear-gradient(
       to bottom var(--in-oklab),
@@ -1849,7 +1848,7 @@
   .footer__moon-wrap {
     --m: clamp(64px, 14vw, 94px);
     position: absolute;
-    top: clamp(3.6rem, 8dvh, 5.6rem);
+    top: clamp(3.6rem, 8svh, 5.6rem);
     right: clamp(1.5rem, 8vw, 6.5rem);
     width: var(--m);
     aspect-ratio: 1;
@@ -1886,7 +1885,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.95rem;
-    padding-block: clamp(7rem, 15dvh, 10rem) clamp(1.2rem, 3dvh, 2.2rem);
+    padding-block: clamp(7rem, 15svh, 10rem) clamp(1.2rem, 3svh, 2.2rem);
   }
 
   .footer__eyebrow {
@@ -1972,7 +1971,7 @@
     position: relative;
     z-index: 1;
     width: 100%;
-    height: clamp(250px, 38dvh, 410px);
+    height: clamp(250px, 38svh, 410px);
     margin-top: auto;
     pointer-events: none;
   }
@@ -2513,13 +2512,13 @@
   }
 
   .sun-wrap {
-    top: clamp(2rem, 5dvh, 3.5rem);
+    top: clamp(2rem, 5svh, 3.5rem);
     right: clamp(0.9rem, 4.5vw, 2.4rem);
     width: clamp(106px, 28vw, 148px);
   }
 
   .land {
-    height: clamp(170px, 26dvh, 240px);
+    height: clamp(170px, 26svh, 240px);
   }
 
   .spotlight {
@@ -2534,16 +2533,16 @@
 
   .footer__moon-wrap {
     --m: clamp(68px, 18vw, 88px);
-    top: clamp(3.4rem, 7dvh, 4.8rem);
+    top: clamp(3.4rem, 7svh, 4.8rem);
     right: clamp(1.35rem, 6vw, 3rem);
   }
 
   .footer__inner {
-    padding-block: clamp(7.2rem, 16dvh, 9.5rem) 1rem;
+    padding-block: clamp(7.2rem, 16svh, 9.5rem) 1rem;
   }
 
   .ranch {
-    height: clamp(248px, 37dvh, 330px);
+    height: clamp(248px, 37svh, 330px);
   }
 
   .toast {
@@ -2554,7 +2553,6 @@
 @media (max-width: 640px) {
   .hero {
     min-height: 100svh;
-    min-height: 100dvh;
     padding-block: 2.6rem 4.8rem;
   }
 
@@ -2748,6 +2746,10 @@
 }
 
 @media (pointer: coarse) {
+  .grain {
+    display: none;
+  }
+
   .cta,
   .copy-btn,
   .footer__share,
