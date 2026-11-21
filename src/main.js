@@ -67,23 +67,6 @@ window.addEventListener(
 );
 updateScrollProgress();
 
-/* ---------- Carga progresiva de foto opcional (public/leandro.jpg) ---------- */
-const photoFrame = document.querySelector('[data-photo-frame]');
-if (photoFrame) {
-  const probe = new Image();
-  probe.decoding = 'async';
-  probe.addEventListener('load', () => {
-    const img = document.createElement('img');
-    img.src = '/leandro.jpg';
-    img.alt = 'Retrato de Leandro';
-    img.width = 400;
-    img.height = 400;
-    img.loading = 'lazy';
-    photoFrame.append(img);
-  });
-  probe.src = '/leandro.jpg';
-}
-
 /* ---------- Explosión festiva en la estrella del Sheriff ---------- */
 const badge = document.querySelector('.badge');
 const palette = ['#d9a13b', '#a24123', '#62734b', '#243846'];
